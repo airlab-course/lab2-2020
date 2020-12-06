@@ -2,7 +2,7 @@
 
 const int ECHO_PIN 8;
 const int TRIG_PIN 9;
-const int SERVO_PIN 10;
+const int SERVO_PIN 4;
 
 const float cm_per_mks 0.017;
 
@@ -26,7 +26,7 @@ void loop() {
     radarServo.write(i);
 
     Serial.print(measureDist());
-    Serial.print(" ");
+    Serial.print("; ");
     Serial.println(i);
     
     if (i == 180) {
