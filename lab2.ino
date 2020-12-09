@@ -7,7 +7,7 @@ int servoBasePosition = 0;
 int servoEndPosition = 180;
 
 Servo servo;
-int buttonPushed = 0;
+bool buttonPushed = false;
 
 void setup() {
   servo.attach(SERVO_PIN);
@@ -16,14 +16,14 @@ void setup() {
 
 void loop() {
   if(digitalRead(BUTTON_PIN) == LOW){
-    buttonPushed = 1;
+    buttonPushed = true;
   }
 
   if(buttonPushed){
     moveServoWithDelay(servoEndPosition);
     delay(3000);
     moveServoWithDelay(servoBasePosition);
-    buttonPushed = 0;
+    buttonPushed = false;
   }
 
 }
