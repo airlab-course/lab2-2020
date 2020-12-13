@@ -30,10 +30,10 @@ namespace CSharp_Code
 
             DrawRadarContur(g);
             DrawRadarAngles(g);
-            DrawPoint(g, distance, angle);            
+            DrawPoint(g, distance, angle, _field.Width / 2);
         }
 
-        public void TestRedrawRadar(List<string> data)
+        public void TestRedrawRadar(params string[] data)
         {
             var g = _field.CreateGraphics();
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
@@ -41,16 +41,12 @@ namespace CSharp_Code
             DrawRadarContur(g);
             DrawRadarAngles(g);
 
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 string[] splitResult = data[i].Split(';');
                 double distance = double.Parse(splitResult[0]);
                 double angle = double.Parse(splitResult[1]);
-                int x = (int)(Math.Cos(angle * Math.PI / 180) * distance);
-                int y = (int)(Math.Sin(angle * Math.PI / 180) * distance);
-
-                g.FillEllipse(_PointColor, _field.Size.Width / 2 + x - POINT_RADIUS, _field.Size.Height - y - POINT_RADIUS,
-                    2 * POINT_RADIUS, 2 * POINT_RADIUS);
+                DrawPoint(g, distance, angle, _field.Width / 2);
             }
         }
 
@@ -82,8 +78,15 @@ namespace CSharp_Code
             g.DrawLine(pen, radarCenter, new Point(_field.Size.Width, 0));
         }
 
-        private void DrawPoint(Graphics g, double distance, double angle)
+        private void DrawPoint(Graphics g, double distance, double angle, double radius)
         {
+            if (distance > 90)
+                return;
+            else if (distance > 60)
+                distance += 200;
+            else if (distance > 30)
+                distance += 100;
+
             int x = (int)(Math.Cos(angle * Math.PI / 180) * distance);
             int y = (int)(Math.Sin(angle * Math.PI / 180) * distance);
 
