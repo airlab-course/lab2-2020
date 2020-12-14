@@ -2,16 +2,16 @@
 
 #define MAX_ANGLE 180
 #define MIN_ANGLE 0
-#define STEP 1
+#define STEP 10
 
 int get_median(int minimum, int maximum){
-  return minimum + (maximum - minimum) / 2.0;
+  return (maximum + minimum) / 2.0;
 }
 
-Servo firstServo;
-int firstServoPosition = get_median(MIN_ANGLE, MAX_ANGLE);
-Servo secondServo;
-int secondServoPosition = get_median(MIN_ANGLE, MAX_ANGLE);
+Servo baseServo;
+int baseServoPosition = get_median(MIN_ANGLE, MAX_ANGLE);
+Servo tiltServo;
+int tiltServoPosition = get_median(MIN_ANGLE, MAX_ANGLE);
 
 const char keyUp = 'U';
 const char keyDown = 'D';
@@ -35,8 +35,8 @@ byte rowPins[rowAmount] = { 5, 4, 3, 2 };
 byte colPins[colAmount] = { 6, 7, 8, 9 };
 
 void setup() {
-  firstServo.attach(10);
-  secondServo.attach(11);
+  baseServo.attach(10);
+  tiltServo.attach(11);
   updatePositions();
  
   for (int i = 0; i < rowAmount; i++) {
@@ -59,13 +59,13 @@ void loop() {
 
 void setAngle(char key){
   if (key == keyUp)
-    firstServoPosition = safeIncrease(firstServoPosition);
+    baseServoPosition = safeIncrease(baseServoPosition);
   if (key == keyDown)
-    firstServoPosition = safeDecrease(firstServoPosition);
+    baseServoPosition = safeDecrease(baseServoPosition);
   if (key == keyRight)
-    secondServoPosition = safeIncrease(secondServoPosition);
+    tiltServoPosition = safeIncrease(tiltServoPosition);
   if (key == keyLeft)
-    secondServoPosition = safeDecrease(secondServoPosition);
+    tiltServoPosition = safeDecrease(tiltServoPosition);
 }
 
 int safeIncrease(int value){
@@ -103,7 +103,7 @@ bool isKeyDown(int i, int j)
 }
 
 void updatePositions() {
-    firstServo.write(firstServoPosition);
-    secondServo.write(secondServoPosition);
-    Serial.print("moving to: ");Serial.print(firstServoPosition);Serial.print(" ");Serial.println(secondServoPosition);
+    baseServo.write(baseServoPosition);
+    tiltServo.write(tiltServoPosition);
+    Serial.print("moving to: ");Serial.print(baseServoPosition);Serial.print(" ");Serial.println(tiltServoPosition);
 }
