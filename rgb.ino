@@ -1,10 +1,17 @@
 #include <LedControl.h>
+#include <MD_TCS230.h>
 
-const int displaysCount = 1;
+const int displaysCount = 6;
 const int dataPin = 12;
 const int clkPin = 10;
 const int csPin = 11;
 LedControl lc = LedControl(dataPin, clkPin, csPin, displaysCount);
+
+#define S0_OUT 2
+#define S1_OUT 3
+#define S2_OUT 4
+#define S3_OUT 5
+MD_TCS230 ColorSensor(S2_OUT, S3_OUT, S0_OUT, S1_OUT);
 
 char digit[10][5][3] = {
     {//1
@@ -87,10 +94,12 @@ char rgbLetter[3][5][3] = {
      {1, 1, 0},
      {1, 0, 1},
      {1, 1, 1}}};
+
 void activatePixel(int row, int column)
 {
-    lc.setLed(0, row, column, true); //count addr also
+    lc.setLed(column / 8, row, column, true);
 }
+
 void drawSymbol(int horizontalOffset, int verticalOffset, char symbol[5][3])
 {
     for (int row = 0; row < 5; row++)
@@ -118,18 +127,46 @@ void drawNumber(int initialHorizontalOffset, int number)
 
 void setup()
 {
+    Serial.begin(115200);
+    Serial.println("Started!");
+
+    sensorData whiteCalibration;
+    whiteCalibration.value[TCS230_RGB_R] = 120060;
+    whiteCalibration.value[TCS230_RGB_G] = 117520;
+    whiteCalibration.value[TCS230_RGB_B] = 157590;
+    sensorData blackCalibration;
+    blackCalibration.value[TCS230_RGB_R] = 11280;
+    blackCalibration.value[TCS230_RGB_G] = 10270;
+    blackCalibration.value[TCS230_RGB_B] = 13230;
+
+    ColorSensor.begin();
+    ColorSensor.setDarkCal(&blackCalibration);
+    ColorSensor.setWhiteCal(&whiteCalibration);
+
     lc.shutdown(0, false);
     lc.setIntensity(0, 16);
     lc.clearDisplay(0);
 }
 
-int* readRGB(){
-    
+int *readRGB()
+{
+    colorData rgb;
+    ColorSensor.read();
+    while (!ColorSensor.available())
+        ;
+    ColorSensor.getRGB(&rgb);
+    int rgbArray[3] =
+        {
+            255 - rgb.value[TCS230_RGB_R],
+            255 - rgb.value[TCS230_RGB_G],
+            255 - rgb.value[TCS230_RGB_B],
+        };
+    return rgbArray;
 }
 
 void loop()
 {
-    int* rgb;
+    int *rgb;
     rgb = readRGB();
     lc.clearDisplay(0);
     int initialOffset = 1;
